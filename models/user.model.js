@@ -31,6 +31,22 @@ const userSchema=new Schema({
     },
 },{
     timestamps:true
-})
+});
+userSchema.methods = {
+    generateJWTToken: async function () {
+        return await jwt.sign(
+            { id: this._id, email: this.email, role: this.role },
+            "superSecretJWTkey",
+            { expiresIn: '24h' }
+        );
+    },
+    hashPassword: async function () {
+        this.password = await bcrypt.hash(this.password, 10);
+    },
+
+    comparePassword: async function (password) {
+        return await bcrypt.compare(password, this.password);
+      },
+};
 const User=model('User',userSchema);
 export default User;
