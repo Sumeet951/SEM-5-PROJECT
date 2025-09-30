@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { motion } from "framer-motion";
-import 'bootstrap/dist/css/bootstrap.min.css';
+import "bootstrap/dist/css/bootstrap.min.css";
+import axios from 'axios';
 
 export default function AuthPage() {
   const [loginData, setLoginData] = useState({ email: "", password: "" });
@@ -26,11 +27,25 @@ export default function AuthPage() {
 
   const handleSignupSubmit = (e) => {
     e.preventDefault();
-    console.log("Signup Data:", signupData);
+    axios
+      .post("http://localhost:3000/user/register", {
+        username: signupData.name,
+        email: signupData.email,
+        password : signupData.password
+      })
+      .then(function (response) {
+        console.log(response);
+      })
+      .catch(function (error) {
+        console.log(error);
+      });
   };
 
   return (
-    <div className="d-flex justify-content-center align-items-center vh-100 bg-light " style={{width:"100vh"}}>
+    <div
+      className="d-flex justify-content-center align-items-center vh-100 bg-light "
+      style={{ width: "100vh" }}
+    >
       <motion.div
         initial={{ opacity: 0, y: 50 }}
         animate={{ opacity: 1, y: 0 }}
@@ -69,8 +84,15 @@ export default function AuthPage() {
 
             <div className="tab-content" id="authTabContent">
               {/* Login Form */}
-              <div className="tab-pane fade show active" id="login" role="tabpanel">
-                <form onSubmit={handleLoginSubmit} className="d-flex flex-column gap-3">
+              <div
+                className="tab-pane fade show active"
+                id="login"
+                role="tabpanel"
+              >
+                <form
+                  onSubmit={handleLoginSubmit}
+                  className="d-flex flex-column gap-3"
+                >
                   <input
                     type="email"
                     name="email"
@@ -89,7 +111,10 @@ export default function AuthPage() {
                     onChange={handleLoginChange}
                     required
                   />
-                  <button type="submit" className="btn btn-primary rounded-pill w-100">
+                  <button
+                    type="submit"
+                    className="btn btn-primary rounded-pill w-100"
+                  >
                     Login
                   </button>
                 </form>
@@ -97,12 +122,15 @@ export default function AuthPage() {
 
               {/* Signup Form */}
               <div className="tab-pane fade" id="signup" role="tabpanel">
-                <form onSubmit={handleSignupSubmit} className="d-flex flex-column gap-3">
+                <form
+                  onSubmit={handleSignupSubmit}
+                  className="d-flex flex-column gap-3"
+                >
                   <input
                     type="text"
                     name="name"
                     className="form-control rounded-pill"
-                    placeholder="Full Name"
+                    placeholder="username"
                     value={signupData.name}
                     onChange={handleSignupChange}
                     required
@@ -134,7 +162,10 @@ export default function AuthPage() {
                     onChange={handleSignupChange}
                     required
                   />
-                  <button type="submit" className="btn btn-success rounded-pill w-100">
+                  <button
+                    type="submit"
+                    className="btn btn-success rounded-pill w-100"
+                  >
                     Sign Up
                   </button>
                 </form>

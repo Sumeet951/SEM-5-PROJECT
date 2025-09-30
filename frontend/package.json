@@ -11,6 +11,7 @@
   },
   "dependencies": {
     "@radix-ui/react-tabs": "^1.1.13",
+    "axios": "^1.12.2",
     "bootstrap": "^5.3.7",
     "class-variance-authority": "^0.7.1",
     "framer-motion": "^12.23.12",

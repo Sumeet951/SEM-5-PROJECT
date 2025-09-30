@@ -8,47 +8,48 @@ const cookieOptions = {
   secure: true,
 };
 export const register = async (req, res, next) => {
-  const { username, email, password } = req.body || {};
+  // const { username, email, password } = req.body || {};
 
-  if (!username || !email || !password) {
-    return next(new AppError("Please provide all required fields", 400));
-  }
+  // if (!username || !email || !password) {
+  //   return next(new AppError("Please provide all required fields", 400));
+  // }
 
-  try {
-    // Check if user already exists
-    const userExists = await User.findOne({ email });
-    if (userExists) {
-      return next(new AppError("Email already exists", 400));
-    }
+  // try {
+  //   // Check if user already exists
+  //   const userExists = await User.findOne({ email });
+  //   if (userExists) {
+  //     return next(new AppError("Email already exists", 400));
+  //   }
 
-    // Create new user
-    const user = new User({ username, email, password });
+  //   // Create new user
+  //   const user = new User({ username, email, password });
 
-    // Hash password (if not handled in schema)
-    if (typeof user.hashPassword === "function") {
-      await user.hashPassword();
-    }
+  //   // Hash password (if not handled in schema)
+  //   if (typeof user.hashPassword === "function") {
+  //     await user.hashPassword();
+  //   }
 
-    await user.save();
+  //   await user.save();
 
-    // Generate JWT
-    const token = await user.generateJWTToken();
+  //   // Generate JWT
+  //   const token = await user.generateJWTToken();
 
-    res.cookie("token", token, cookieOptions);
+  //   res.cookie("token", token, cookieOptions);
 
-    return res.status(201).json({
-      success: true,
-      message: "User registered successfully",
-      user: {
-        id: user._id,
-        username: user.username,
-        email: user.email,
-        role: user.role,
-      },
-    });
-  } catch (error) {
-    return next(new AppError(error.message, 500));
-  }
+  //   return res.status(201).json({
+  //     success: true,
+  //     message: "User registered successfully",
+  //     user: {
+  //       id: user._id,
+  //       username: user.username,
+  //       email: user.email,
+  //       role: user.role,
+  //     },
+  //   });
+  // } catch (error) {
+  //   return next(new AppError(error.message, 500));
+  // }
+  console.log(req.body);
 };
 
 export const login = async (req, res, next) => {
