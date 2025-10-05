@@ -1,38 +1,26 @@
-import React, { useState } from "react";
+import  { useState } from "react";
 import { motion } from "framer-motion";
 import "bootstrap/dist/css/bootstrap.min.css";
 import axios from 'axios';
+import SignupForm from "./SignupForm";
 
 export default function AuthPage() {
   const [loginData, setLoginData] = useState({ email: "", password: "" });
-  const [signupData, setSignupData] = useState({
-    name: "",
-    email: "",
-    password: "",
-    confirmPassword: "",
-  });
+  
 
   const handleLoginChange = (e) => {
     setLoginData({ ...loginData, [e.target.name]: e.target.value });
   };
 
-  const handleSignupChange = (e) => {
-    setSignupData({ ...signupData, [e.target.name]: e.target.value });
-  };
+ 
 
   const handleLoginSubmit = (e) => {
     e.preventDefault();
-    console.log("Login Data:", loginData);
-  };
-
-  const handleSignupSubmit = (e) => {
-    e.preventDefault();
     axios
-      .post("http://localhost:3000/user/register", {
-        username: signupData.name,
-        email: signupData.email,
-        password : signupData.password
-      })
+      .post("http://localhost:3000/user/login", {
+        email: loginData.email,
+        password : loginData.password
+      },{ withCredentials: true })
       .then(function (response) {
         console.log(response);
       })
@@ -40,6 +28,8 @@ export default function AuthPage() {
         console.log(error);
       });
   };
+
+  
 
   return (
     <div
@@ -96,20 +86,18 @@ export default function AuthPage() {
                   <input
                     type="email"
                     name="email"
+                    value={loginData.email}
                     className="form-control rounded-pill"
                     placeholder="Email"
-                    value={loginData.email}
                     onChange={handleLoginChange}
-                    required
                   />
                   <input
                     type="password"
                     name="password"
+                    value={loginData.password}
                     className="form-control rounded-pill"
                     placeholder="Password"
-                    value={loginData.password}
                     onChange={handleLoginChange}
-                    required
                   />
                   <button
                     type="submit"
@@ -121,55 +109,7 @@ export default function AuthPage() {
               </div>
 
               {/* Signup Form */}
-              <div className="tab-pane fade" id="signup" role="tabpanel">
-                <form
-                  onSubmit={handleSignupSubmit}
-                  className="d-flex flex-column gap-3"
-                >
-                  <input
-                    type="text"
-                    name="name"
-                    className="form-control rounded-pill"
-                    placeholder="username"
-                    value={signupData.name}
-                    onChange={handleSignupChange}
-                    required
-                  />
-                  <input
-                    type="email"
-                    name="email"
-                    className="form-control rounded-pill"
-                    placeholder="Email"
-                    value={signupData.email}
-                    onChange={handleSignupChange}
-                    required
-                  />
-                  <input
-                    type="password"
-                    name="password"
-                    className="form-control rounded-pill"
-                    placeholder="Create Password"
-                    value={signupData.password}
-                    onChange={handleSignupChange}
-                    required
-                  />
-                  <input
-                    type="password"
-                    name="confirmPassword"
-                    className="form-control rounded-pill"
-                    placeholder="Confirm Password"
-                    value={signupData.confirmPassword}
-                    onChange={handleSignupChange}
-                    required
-                  />
-                  <button
-                    type="submit"
-                    className="btn btn-success rounded-pill w-100"
-                  >
-                    Sign Up
-                  </button>
-                </form>
-              </div>
+              <SignupForm/>
             </div>
           </div>
         </div>

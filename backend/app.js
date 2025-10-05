@@ -5,8 +5,13 @@ import morgan from 'morgan';
 import errorMiddleware from "./middleware/error.middleware.js";
 import userRoutes from "./routes/userRoutes.js";
 import 'dotenv/config'
+import jwt from "jsonwebtoken";
+import userModel from "./models/user.model.js";
 
 const app= express();
+
+
+
 app.use(express.json());
 app.use(express.urlencoded({extended:true}));
 app.use(cors({
@@ -18,7 +23,10 @@ app.use(cookieParser());
 
 //Routes
 app.use('/user',userRoutes);
+
 app.use(errorMiddleware);
 
-app.listen()
+
+
+
 export default app;
