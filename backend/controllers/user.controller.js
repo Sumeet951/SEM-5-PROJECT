@@ -1,5 +1,21 @@
 import userModel from "../models/user.model.js";
+import jwt from "jsonwebtoken";
 
+async function getUser(req,res,next){
+  try{
+    if(!req.cookies.token){
+      return res.status(401).json({success:false,message:"No Authentication Token found"});
+    }
+    let user=jwt.verify(req.cookies.token,process.env.JWT_SECRET);
+    user= await userModel.findById(user.id);
+    if(!user){
+      return res.status(404).json({success:false,message:"User not found"});
+    }
+    res.status(200).json({success:true,user});
+  }catch(err){
+    next(err);
+  }
+}
 async function register(req, res,next) {
   // Registration logic here
   try{
@@ -9,7 +25,7 @@ async function register(req, res,next) {
       .status(400)
       .json({ success: false, message: "All fields are required" });
   }
-  if(await userModel.findOne({email})){
+  if(await userModel.findOne({email}) || await userModel.findOne({username})){
     return res
       .status(400)
       .json({ success: false, message: "User already exists" });
@@ -60,5 +76,5 @@ function logout(req, res) {
   res.status(200).json({ success: true, message: "Logged out successfully" });
 }
 
-const controller = { register, login, logout };
+const controller = { register, login, logout,getUser };
 export default controller;

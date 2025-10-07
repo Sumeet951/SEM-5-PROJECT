@@ -45,7 +45,7 @@ UserSchema.methods={
         return await bcrypt.compare(candidatePassword, this.password);
     },
     generateJWT: function() {
-        return jwt.sign({ id: this._id, username: this.username }, process.env.JWT_SECRET, { expiresIn: '7d' });
+        return jwt.sign({ id: this._id, username: this.username, email : this.email }, process.env.JWT_SECRET, { expiresIn: '7d' });
     }
 }
 
