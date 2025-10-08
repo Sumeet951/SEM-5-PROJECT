@@ -74,7 +74,7 @@ const Login = () => {
     //dispatch aaction here
     const response=await dispatch(login(formData))
     if(response?.payload?.success)
-        navigate("/");
+        navigate("/dashboard");
     setFormData({
         email:"",
         password:""

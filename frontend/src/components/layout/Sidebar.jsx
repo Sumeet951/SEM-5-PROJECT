@@ -61,9 +61,9 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
       icon: BarChart3,
       path: '/analytics',
       subItems: [
-        { label: 'Overview', path: '/analytics/overview' },
-        { label: 'Spending', path: '/analytics/spending' },
-        { label: 'Insights', path: '/analytics/insights', icon: Sparkles }
+        { label: 'Overview', path: '/analytics' },
+        { label: 'Spending', path: '/analytics' },
+        { label: 'Insights', path: '/analytics', icon: Sparkles }
       ]
     },
     {
