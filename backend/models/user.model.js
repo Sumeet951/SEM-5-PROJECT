@@ -3,11 +3,11 @@ import bcrypt from 'bcryptjs'
 import jwt from "jsonwebtoken"
 import mongoose from "mongoose";
 const userSchema=new Schema({
-    username:{
+    fullName:{
         type:'String',
-        required:[true,'username is required'],
-        minLength:[5,'username must be at least 5 character'],
-        maxLength:[50,"username should be less than 50 character"],
+        required:[true,'fullname is required'],
+        minLength:[5,'fullname must be at least 5 character'],
+        maxLength:[50,"fullname should be less than 50 character"],
         lowercase:true,
         trim:true, //first and last side space trim karke rakhega
     },

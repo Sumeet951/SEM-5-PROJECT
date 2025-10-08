@@ -8,9 +8,9 @@ const cookieOptions = {
   secure: true,
 };
 export const register = async (req, res, next) => {
-  const { username, email, password } = req.body || {};
+  const { fullName, email, password } = req.body || {};
 
-  if (!username || !email || !password) {
+  if (!fullName || !email || !password) {
     return next(new AppError("Please provide all required fields", 400));
   }
 
@@ -22,7 +22,7 @@ export const register = async (req, res, next) => {
     }
 
     // Create new user
-    const user = new User({ username, email, password });
+    const user = new User({ fullName, email, password });
 
     // Hash password (if not handled in schema)
     if (typeof user.hashPassword === "function") {
@@ -41,7 +41,7 @@ export const register = async (req, res, next) => {
       message: "User registered successfully",
       user: {
         id: user._id,
-        username: user.username,
+        fullName: user.fullName,
         email: user.email,
         role: user.role,
       },
@@ -81,7 +81,7 @@ export const login = async (req, res, next) => {
       message: "User logged in successfully",
       user: {
         id: user._id,
-        username: user.username,
+        fullName: user.fullName,
         email: user.email,
         role: user.role,
       },
@@ -101,6 +101,74 @@ export const logout = async (req, res, next) => {
     return res.status(200).json({
       success: true,
       message: "User logged out successfully",
+    });
+  } catch (error) {
+    return next(new AppError(error.message, 500));
+  }
+};
+
+export const getProfile = async (req, res, next) => {
+  try {
+    const user = await User.findById(req.user.id);
+
+    if (!user) {
+      return next(new AppError("User not found", 404));
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: "Profile retrieved successfully",
+      user: {
+        id: user._id,
+        fullName: user.fullName,
+        email: user.email,
+        role: user.role,
+        createdAt: user.createdAt,
+        updatedAt: user.updatedAt,
+      },
+    });
+  } catch (error) {
+    return next(new AppError(error.message, 500));
+  }
+};
+
+export const updateProfile = async (req, res, next) => {
+  try {
+    const { fullName, email } = req.body;
+    const userId = req.user.id;
+
+    // Check if email is being updated and if it already exists
+    if (email) {
+      const existingUser = await User.findOne({ email, _id: { $ne: userId } });
+      if (existingUser) {
+        return next(new AppError("Email already exists", 400));
+      }
+    }
+
+    const updatedUser = await User.findByIdAndUpdate(
+      userId,
+      {
+        ...(fullName && { fullName }),
+        ...(email && { email }),
+      },
+      { new: true, runValidators: true }
+    );
+
+    if (!updatedUser) {
+      return next(new AppError("User not found", 404));
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: "Profile updated successfully",
+      user: {
+        id: updatedUser._id,
+        fullName: updatedUser.fullName,
+        email: updatedUser.email,
+        role: updatedUser.role,
+        createdAt: updatedUser.createdAt,
+        updatedAt: updatedUser.updatedAt,
+      },
     });
   } catch (error) {
     return next(new AppError(error.message, 500));

@@ -4,6 +4,7 @@ import cors from "cors";
 import morgan from 'morgan';
 import errorMiddleware from "./middleware/error.middleware.js";
 import userRoutes from "./routes/userRoutes.js";
+import subscriptionRoutes from "./routes/subscription.routes.js"
 import 'dotenv/config'
 
 const app= express();
@@ -18,6 +19,7 @@ app.use(cookieParser());
 
 //Routes
 app.use('/user',userRoutes);
+app.use('/subscriptions',subscriptionRoutes)
 app.use(errorMiddleware);
 
 app.listen()
