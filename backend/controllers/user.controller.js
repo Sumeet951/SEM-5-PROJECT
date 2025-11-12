@@ -132,27 +132,85 @@ export const getProfile = async (req, res, next) => {
   }
 };
 
+// export const updateProfile = async (req, res, next) => {
+//   try {
+//     console.log(req.body.fullName);
+//     const { fullName, email } = req.body;
+//     const userId = req.user.id;
+
+//     // Check if email is being updated and if it already exists
+//     if (email) {
+//       const existingUser = await User.findOne({ email, _id: { $ne: userId } });
+//       if (existingUser) {
+//         return next(new AppError("Email already exists", 400));
+//       }
+//     }
+
+//     const updatedUser = await User.findByIdAndUpdate(
+//       userId,
+//       {
+//         ...(fullName && { fullName }),
+//         ...(email && { email }),
+//       },
+//       { new: true, runValidators: true }
+//     );
+
+//     if (!updatedUser) {
+//       return next(new AppError("User not found", 404));
+//     }
+
+//     return res.status(200).json({
+//       success: true,
+//       message: "Profile updated successfully",
+//       user: {
+//         id: updatedUser._id,
+//         fullName: updatedUser.fullName,
+//         email: updatedUser.email,
+//         role: updatedUser.role,
+//         createdAt: updatedUser.createdAt,
+//         updatedAt: updatedUser.updatedAt,
+//       },
+//     });
+//   } catch (error) {
+//     return next(new AppError(error.message, 500));
+//   }
+// };
 export const updateProfile = async (req, res, next) => {
   try {
+    // Log for debugging
+    console.log('Body:', req.body);
+    console.log('Params ID:', req.params.id);
+    console.log('Token User ID:', req.user.id);
+    
     const { fullName, email } = req.body;
     const userId = req.user.id;
-
-    // Check if email is being updated and if it already exists
-    if (email) {
-      const existingUser = await User.findOne({ email, _id: { $ne: userId } });
-      if (existingUser) {
-        return next(new AppError("Email already exists", 400));
-      }
+    
+    // Validation
+    if (!fullName || !email) {
+      return next(new AppError("Name and email are required", 400));
     }
 
+    // Security check
+    if (userId !== req.user.id) {
+      return next(new AppError("Unauthorized", 403));
+    }
+
+    // Check duplicate email
+    const existingUser = await User.findOne({ 
+      email, 
+      _id: { $ne: userId } 
+    });
+    
+    if (existingUser) {
+      return next(new AppError("Email already exists", 400));
+    }
+
+    // Update
     const updatedUser = await User.findByIdAndUpdate(
       userId,
-      {
-        ...(fullName && { fullName }),
-        ...(email && { email }),
-      },
+      { fullName, email },
       { new: true, runValidators: true }
-    );
+    ).select('-password');
 
     if (!updatedUser) {
       return next(new AppError("User not found", 404));
@@ -171,6 +229,7 @@ export const updateProfile = async (req, res, next) => {
       },
     });
   } catch (error) {
+    console.error('Update error:', error);
     return next(new AppError(error.message, 500));
   }
 };
