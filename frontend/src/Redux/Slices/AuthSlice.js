@@ -158,7 +158,27 @@ const authSlice = createSlice({
       .addCase(fetchProfile.rejected, (state, action) => {
         state.profileLoading = false;
         state.profileError = action.error.message;
-      });
+      })
+      .addCase(updateProfile.pending, (state) => {
+  state.profileLoading = true;
+  state.profileError = null;
+})
+.addCase(updateProfile.fulfilled, (state, action) => {
+  state.profileLoading = false;
+  if (action?.payload?.user) {
+    localStorage.setItem("data", JSON.stringify(action?.payload?.user));
+    state.data = {
+      ...state.data,
+      ...action?.payload?.user
+    };
+    state.profile = action?.payload?.user;
+  }
+})
+.addCase(updateProfile.rejected, (state, action) => {
+  state.profileLoading = false;
+  state.profileError = action.error.message;
+})
+      
   },
 });
 

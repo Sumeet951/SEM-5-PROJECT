@@ -41,45 +41,7 @@ const StatCard = ({ title, value, icon: Icon, trend, trendValue, color }) => (
   </div>
 );
 
-// ============================================
-// Spending Chart Component
-// ============================================
-const SpendingChart = ({ data }) => {
-  const maxAmount = Math.max(...data.map(d => d.amount), 1);
-  
-  return (
-    <div className="bg-white rounded-2xl p-6 border border-gray-100">
-      <div className="flex items-center justify-between mb-6">
-        <div>
-          <h3 className="text-lg font-bold text-gray-900">Spending Overview</h3>
-          <p className="text-sm text-gray-500 mt-1">Last 6 months</p>
-        </div>
-        <button className="p-2 hover:bg-gray-100 rounded-lg transition-colors">
-          <MoreVertical className="w-5 h-5 text-gray-400" />
-        </button>
-      </div>
-      
-      <div className="flex items-end justify-between h-48 gap-4">
-        {data.map((item, index) => (
-          <div key={index} className="flex-1 flex flex-col items-center gap-2">
-            <div className="w-full bg-gray-100 rounded-t-lg overflow-hidden relative group">
-              <div 
-                className="bg-gradient-to-t from-purple-600 to-purple-400 rounded-t-lg transition-all duration-500 hover:from-purple-700 hover:to-purple-500 relative"
-                style={{ height: `${(item.amount / maxAmount) * 180}px` }}
-              >
-                <div className="absolute inset-0 bg-white opacity-0 group-hover:opacity-20 transition-opacity"></div>
-              </div>
-              <div className="absolute -top-8 left-1/2 transform -translate-x-1/2 bg-gray-900 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
-                ${item.amount}
-              </div>
-            </div>
-            <span className="text-xs font-medium text-gray-600">{item.month}</span>
-          </div>
-        ))}
-      </div>
-    </div>
-  );
-};
+// SpendingChart component has been removed as requested.
 
 // ============================================
 // Upcoming Card Component
@@ -453,7 +415,7 @@ export default function Dashboard({
   subscriptions = [],
   stats = { monthlyTotal: 0, annualTotal: 0, activeCount: 0, upcomingCount: 0 },
   upcomingRenewals = [],
-  spendingData = [],
+  spendingData = [], // This data is no longer used for the chart but might be used elsewhere
   loading = false,
   
   // Redux action props
@@ -636,8 +598,7 @@ export default function Dashboard({
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             {/* Main Content */}
             <div className="lg:col-span-2 space-y-6">
-              {/* Spending Chart */}
-              {spendingData.length > 0 && <SpendingChart data={spendingData} />}
+              {/* Spending Chart was here, but has been removed. */}
 
               {/* Subscriptions List */}
               <div className="bg-white rounded-2xl p-4 sm:p-6 border border-gray-100">

@@ -1,21 +1,21 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   TrendingUp,
   TrendingDown,
   DollarSign,
-  Calendar,
   PieChart,
   BarChart3,
   Download,
   Filter,
-  ChevronDown,
   ArrowUpRight,
   ArrowDownRight,
   Lightbulb,
   Package,
   CreditCard,
-  Loader2
+  Loader2,
+  Menu
 } from 'lucide-react';
+import Sidebar from '../components/layout/Sidebar'; // ✅ Import Sidebar
 
 // Stats Card Component
 const StatsCard = ({ title, value, change, changeType, icon: Icon, color }) => (
@@ -41,77 +41,6 @@ const StatsCard = ({ title, value, change, changeType, icon: Icon, color }) => (
     <p className="text-3xl font-bold text-gray-900">{value}</p>
   </div>
 );
-
-// Monthly Spending Chart
-const MonthlySpendingChart = ({ data }) => {
-  if (!data || data.length === 0) {
-    return (
-      <div className="bg-white rounded-2xl p-6 border border-gray-100">
-        <h3 className="text-xl font-bold text-gray-900 mb-4">Monthly Spending Trends</h3>
-        <div className="flex items-center justify-center h-64 text-gray-400">
-          <p>No spending data available</p>
-        </div>
-      </div>
-    );
-  }
-
-  const maxAmount = Math.max(...data.map(d => d.amount), 1);
-  const avgAmount = data.reduce((sum, d) => sum + d.amount, 0) / data.length;
-  const totalAmount = data.reduce((sum, d) => sum + d.amount, 0);
-  
-  return (
-    <div className="bg-white rounded-2xl p-6 border border-gray-100">
-      <div className="flex items-center justify-between mb-6">
-        <div>
-          <h3 className="text-xl font-bold text-gray-900">Monthly Spending Trends</h3>
-          <p className="text-sm text-gray-500 mt-1">Your subscription costs over time</p>
-        </div>
-        <select className="px-4 py-2 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-purple-500">
-          <option>Last 12 months</option>
-          <option>Last 6 months</option>
-          <option>Last 3 months</option>
-          <option>This year</option>
-        </select>
-      </div>
-      
-      <div className="flex items-end justify-between h-64 gap-2">
-        {data.map((item, index) => (
-          <div key={index} className="flex-1 flex flex-col items-center gap-2">
-            <div className="w-full relative group">
-              <div 
-                className="w-full bg-gradient-to-t from-purple-600 to-purple-400 rounded-t-xl transition-all duration-500 hover:from-purple-700 hover:to-purple-500"
-                style={{ height: `${(item.amount / maxAmount) * 240}px` }}
-              >
-                <div className="absolute -top-10 left-1/2 transform -translate-x-1/2 bg-gray-900 text-white text-xs px-3 py-1.5 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap font-medium shadow-lg">
-                  ${item.amount}
-                </div>
-              </div>
-            </div>
-            <span className="text-xs font-medium text-gray-600">{item.month}</span>
-          </div>
-        ))}
-      </div>
-      
-      <div className="mt-6 pt-6 border-t border-gray-100 flex items-center justify-between">
-        <div>
-          <p className="text-sm text-gray-600">Average per month</p>
-          <p className="text-2xl font-bold text-gray-900">${avgAmount.toFixed(2)}</p>
-        </div>
-        <div>
-          <p className="text-sm text-gray-600">Total this year</p>
-          <p className="text-2xl font-bold text-gray-900">${totalAmount.toFixed(2)}</p>
-        </div>
-        <div>
-          <p className="text-sm text-gray-600">Compared to last year</p>
-          <div className="flex items-center gap-1">
-            <ArrowUpRight className="w-5 h-5 text-red-600" />
-            <p className="text-2xl font-bold text-red-600">+12%</p>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-};
 
 // Category Breakdown
 const CategoryBreakdown = ({ subscriptions }) => {
@@ -327,7 +256,7 @@ const InsightsCard = ({ subscriptions, stats }) => {
   
   const topCategory = Object.entries(categorySpending).sort((a, b) => b[1] - a[1])[0];
   if (topCategory) {
-    const percentage = Math.round((topCategory[1] / stats.monthlyTotal) * 100);
+    const percentage = stats.monthlyTotal > 0 ? Math.round((topCategory[1] / stats.monthlyTotal) * 100) : 0;
     insights.push({
       icon: CreditCard,
       text: `${percentage}% of your budget goes to ${topCategory[0]}`,
@@ -382,15 +311,28 @@ export default function AnalyticsPage({
   // Redux state props
   subscriptions = [],
   stats = { monthlyTotal: 0, annualTotal: 0, activeCount: 0, upcomingCount: 0 },
-  spendingData = [],
   loading = false,
   
   // Redux action props
   onGetAllSubscriptions,
   onGetDashboardStats
 }) {
-  const [period, setPeriod] = useState('12months');
-  
+  const [sidebarOpen, setSidebarOpen] = useState(window.innerWidth >= 1024);
+
+  // Responsive sidebar behavior
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth >= 1024) {
+        setSidebarOpen(true);
+      } else {
+        setSidebarOpen(false);
+      }
+    };
+
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
   // Load data on mount
   useEffect(() => {
     if (onGetAllSubscriptions) onGetAllSubscriptions();
@@ -405,7 +347,9 @@ export default function AnalyticsPage({
   // Calculate year-over-year change
   const yearTotal = stats.annualTotal || 0;
   const lastYearTotal = yearTotal * 0.88; // Mock 12% increase
-  const yoyChange = ((yearTotal - lastYearTotal) / lastYearTotal * 100).toFixed(0);
+  const yoyChange = lastYearTotal > 0
+    ? (((yearTotal - lastYearTotal) / lastYearTotal) * 100).toFixed(0)
+    : '0';
   
   // Calculate potential savings
   const monthlySubs = subscriptions.filter(sub => sub.billingCycle === 'monthly');
@@ -423,14 +367,30 @@ export default function AnalyticsPage({
   }
   
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 p-6">
-      <div className="max-w-7xl mx-auto">
-        {/* Header */}
-        <div className="mb-8">
+    // ✅ Sidebar wrapper
+    <div className="flex h-screen bg-gray-50 overflow-hidden">
+      {/* ✅ Sidebar Component */}
+      <Sidebar isOpen={sidebarOpen} setIsOpen={setSidebarOpen} />
+
+      {/* ✅ Main Content */}
+      <div className="flex-1 flex flex-col overflow-hidden">
+        {/* ✅ Header with mobile toggle */}
+        <div className="bg-white border-b border-gray-200 px-4 sm:px-6 py-4">
           <div className="flex items-center justify-between mb-6">
-            <div>
-              <h1 className="text-4xl font-bold text-gray-900 mb-2">Analytics</h1>
-              <p className="text-gray-600">Deep insights into your subscription spending</p>
+            <div className="flex items-center gap-4">
+              {/* Mobile menu toggle */}
+              <button
+                onClick={() => setSidebarOpen(!sidebarOpen)}
+                className="lg:hidden p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                aria-label="Toggle sidebar"
+              >
+                <Menu className="w-6 h-6 text-gray-700" />
+              </button>
+
+              <div>
+                <h1 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-2">Analytics</h1>
+                <p className="text-gray-600">Deep insights into your subscription spending</p>
+              </div>
             </div>
             <div className="flex gap-3">
               <button className="px-4 py-2 border border-gray-200 bg-white rounded-xl hover:bg-gray-50 transition-colors flex items-center gap-2">
@@ -448,7 +408,7 @@ export default function AnalyticsPage({
           </div>
 
           {/* Stats Overview */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             <StatsCard
               title="Total Spent This Year"
               value={`$${yearTotal.toFixed(2)}`}
@@ -480,22 +440,22 @@ export default function AnalyticsPage({
           </div>
         </div>
 
-        {/* Main Content */}
-        <div className="space-y-6">
-          {/* Monthly Spending Chart */}
-          <MonthlySpendingChart data={spendingData} />
+        {/* Content Area - Scrollable */}
+        <div className="flex-1 overflow-y-auto p-4 sm:p-6">
+          {/* Main Content */}
+          <div className="space-y-6">
+            {/* Two Column Layout */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              {/* Category Breakdown */}
+              <CategoryBreakdown subscriptions={subscriptions} />
+              
+              {/* Top Subscriptions */}
+              <TopSubscriptions subscriptions={subscriptions} />
+            </div>
 
-          {/* Two Column Layout */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            {/* Category Breakdown */}
-            <CategoryBreakdown subscriptions={subscriptions} />
-            
-            {/* Top Subscriptions */}
-            <TopSubscriptions subscriptions={subscriptions} />
+            {/* Insights */}
+            <InsightsCard subscriptions={subscriptions} stats={stats} />
           </div>
-
-          {/* Insights */}
-          <InsightsCard subscriptions={subscriptions} stats={stats} />
         </div>
       </div>
     </div>
